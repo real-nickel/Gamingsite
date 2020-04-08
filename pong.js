@@ -5,7 +5,7 @@
   </head>
   <body></body>
 </html>
-var animate = window.requestAnimationFrame ||
+<script>var animate = window.requestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
   window.mozRequestAnimationFrame ||
   function(callback) { window.setTimeout(callback, 1000/60) };
@@ -30,4 +30,4 @@ var update = function() {
 var render = function() {
   context.fillStyle = "#FF00FF";
   context.fillRect(0, 0, width, height);
-};
+};</script>
