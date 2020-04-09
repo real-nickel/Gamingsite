@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Snake</title>
+  <body background="cool-background.png">
+  <p>Use the arrow keys</p>
+  <style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  canvas {
+    border: 1px solid white;
+  }
+  </style>
+    <style>body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica","Roboto","Oxygen","Ubuntu", "Cantarell","Droid Sans","Helvetica Neue",sans-serif;}#MC{border-style: solid;border-width: 2px;}.partload{display:none;}.load{display:block!important;width: 100%; height: 100%; background-color: #3c58a6; position: fixed; top:0px; left:0px; z-index:1000;}.spinner:before{content:"";box-sizing:border-box;position:absolute;top:50%;left:50%;width:60px;height:60px;margin-top:-30px;margin-left:-30px;border-radius:50%;border-top:2px solid #ffffff;border-right:2px solid transparent;animation:spinner .7s linear infinite}@keyframes spinner{to{transform:rotate(360deg)}}@webkit-keyframes spinner{to{transform:rotate(360deg)}}#mainContent,#mainwrapper header #logo,#sidebar{padding-left:2%;float:left }#mainwrapper header{background-color:#3c58a6;overflow:auto;font-style:normal;font-weight:400 }#content #mainContent h3,#content #mainContent p{font-style:normal;font-weight:400}#red{color:red;}#white{color:white;}.video{border-style:outset;width:100%;height:auto;overflow:auto}.audio{width:100%;height:50px }#mainwrapper header #logo{width:28%;padding-top:12px;padding-bottom:12px;color:rgba(146,146,146,1) }#content #mainContent h1{color:#929292}.cse .gsc-control-cse,.gsc-control-cse {padding: 0px !important;}#content #mainContent h3{color:#505050;}.skipload{top:57%; left:45.6%;margin: 0 auto;position:absolute;border:solid;border-width:1px;border-color:black;}.fit{max-height:100%;max-width:100%;display: block;width: 100%;height: auto;}#content #mainContent #bannerImage{width:100%;background-color:#3c58a6;}.hide7s{display:none !important;}#content #mainContent p{color:rgba(48,48,48,1);text-align:justify;}input[src="Media/search.png"]{width:22px;height:22px;}#searchBox{width: -webkit-calc(100% - 22px);width:-moz-calc(100% - 22px);width:calc(100% - 22px);float:left;}#mainContent{width:71%;padding-right:2%;padding-top:41px }.skipload a:link, .skipload a:visited {background-color: #3c58a6;border-color: black;color: white;padding: 14px 24px;text-align: center;text-decoration: none;display: inline-block;}.skipload a:hover, .skipload a:active {background-color: #3c68f6;}#sidebar{width:19%;padding-right:2%;background-color:#3c58a6;margin-top:150px;padding-top:32px;overflow:auto;}#mainwrapper{width:90%;overflow:auto;margin-left:5% }#content #sidebar input{width:98%;height:32px }#content #sidebar #adimage{width:100%;background-color: rgb(255,255,255);margin-top:46px;float:none;overflow:auto }nav ul li{list-style-type:none;padding-top:8px;padding-bottom:8px }nav ul{padding-left:0 }nav ul li a{color:#e8e8e8;text-decoration:none }nav ul li b{color:#fcfcfc;text-decoration:none }.notOnDesktop{display:none }.brm{display:none;}@media screen and (max-width:769px){.brm{display:block !important;}/*.ad1 {height: 200px !important;}*/.notOnDesktop{display:block;text-align:right;padding-right:8px;padding-top:8px;padding-bottom:8px;width:96% }#mainContent{padding-top:0;float:none;width:96% }#sidebar input{display:none }#mainwrapper #content #sidebar{float:none;width:92%;padding-top:13px;overflow:auto;margin-top:3px;margin-left:2%;padding-bottom:13px }#content #sidebar #adimage{background-color: rgb(255,255,255);width:60%;margin-top:0;float:left }#content #sidebar nav{width:36%;float:left;padding-left:4% }#sidebar nav ul{margin-top:0 }#mainwrapper header{width:100% }}@media screen and (max-width:480px){#mainwrapper header #logo{width:96%;margin-left:2% }/*.ad1 {height: 250px !important;}*/#content #sidebar #adimage{width:100% }#content #sidebar nav{width:96%;padding-top:7px }#sidebar nav ul li{display:inline-block;width:32%;text-align:center }#mainwrapper #content #sidebar{padding-bottom:0 }#content .notOnDesktop{width:100%;text-align:center;padding-left:0;padding-right:0 }#content #mainContent h3{font-size:14px }}
+</style>
+</head>
+<body>
+<canvas width="400" height="400" id="game"></canvas>
+<script>
+var canvas = document.getElementById('game');
+var context = canvas.getContext('2d');
+
+var grid = 16;
+var count = 0;
+  
+var snake = {
+  x: 160,
+  y: 160,
+  
+  // snake velocity. moves one grid length every frame in either the x or y direction
+  dx: grid,
+  dy: 0,
+  
+  // keep track of all grids the snake body occupies
+  cells: [],
+  
+  // length of the snake. grows when eating an apple
+  maxCells: 4
+};
+var apple = {
+  x: 320,
+  y: 320
+};
+
+// get random whole numbers in a specific range
+// @see https://stackoverflow.com/a/1527820/2124254
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+// game loop
+function loop() {
+  requestAnimationFrame(loop);
+
+  // slow game loop to 15 fps instead of 60 (60/15 = 4)
+  if (++count < 4) {
+    return;
+  }
+
+  count = 0;
+  context.clearRect(0,0,canvas.width,canvas.height);
+
+  // move snake by it's velocity
+  snake.x += snake.dx;
+  snake.y += snake.dy;
+
+  // wrap snake position horizontally on edge of screen
+  if (snake.x < 0) {
+    snake.x = canvas.width - grid;
+  }
+  else if (snake.x >= canvas.width) {
+    snake.x = 0;
+  }
+  
+  // wrap snake position vertically on edge of screen
+  if (snake.y < 0) {
+    snake.y = canvas.height - grid;
+  }
+  else if (snake.y >= canvas.height) {
+    snake.y = 0;
+  }
+
+  // keep track of where snake has been. front of the array is always the head
+  snake.cells.unshift({x: snake.x, y: snake.y});
+
+  // remove cells as we move away from them
+  if (snake.cells.length > snake.maxCells) {
+    snake.cells.pop();
+  }
+
+  // draw apple
+  context.fillStyle = 'red';
+  context.fillRect(apple.x, apple.y, grid-1, grid-1);
+
+  // draw snake one cell at a time
+  context.fillStyle = 'green';
+  snake.cells.forEach(function(cell, index) {
+    
+    // drawing 1 px smaller than the grid creates a grid effect in the snake body so you can see how long it is
+    context.fillRect(cell.x, cell.y, grid-1, grid-1);  
+
+    // snake ate apple
+    if (cell.x === apple.x && cell.y === apple.y) {
+      snake.maxCells++;
+
+      // canvas is 400x400 which is 25x25 grids 
+      apple.x = getRandomInt(0, 25) * grid;
+      apple.y = getRandomInt(0, 25) * grid;
+    }
+
+    // check collision with all cells after this one (modified bubble sort)
+    for (var i = index + 1; i < snake.cells.length; i++) {
+      
+      // snake occupies same space as a body part. reset game
+      if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+        snake.x = 160;
+        snake.y = 160;
+        snake.cells = [];
+        snake.maxCells = 4;
+        snake.dx = grid;
+        snake.dy = 0;
+
+        apple.x = getRandomInt(0, 25) * grid;
+        apple.y = getRandomInt(0, 25) * grid;
+      }
+    }
+  });
+}
+
+// listen to keyboard events to move the snake
+document.addEventListener('keydown', function(e) {
+  // prevent snake from backtracking on itself by checking that it's 
+  // not already moving on the same axis (pressing left while moving
+  // left won't do anything, and pressing right while moving left
+  // shouldn't let you collide with your own body)
+  
+  // left arrow key
+  if (e.which === 37 && snake.dx === 0) {
+    snake.dx = -grid;
+    snake.dy = 0;
+  }
+  // up arrow key
+  else if (e.which === 38 && snake.dy === 0) {
+    snake.dy = -grid;
+    snake.dx = 0;
+  }
+  // right arrow key
+  else if (e.which === 39 && snake.dx === 0) {
+    snake.dx = grid;
+    snake.dy = 0;
+  }
+  // down arrow key
+  else if (e.which === 40 && snake.dy === 0) {
+    snake.dy = grid;
+    snake.dx = 0;
+  }
+});
+
+// start the game
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
